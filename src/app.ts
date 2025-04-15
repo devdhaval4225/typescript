@@ -1,25 +1,28 @@
 import express from 'express';
-import mongoose from 'mongoose';
+import './db/connection';
 import userRoutes from './routes/userRoutes';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/your_database_name'; // Replace with your MongoDB URI
+
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: `http://localhost:${PORT}`, // Update with your frontend URL
+    credentials: true,
+  })
+);
 
 app.use(bodyParser.json()); // Important for parsing JSON request bodies
-app.use('/users', userRoutes);
+app.use('/v1/users/', userRoutes);
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
